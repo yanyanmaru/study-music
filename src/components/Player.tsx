@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 
-export default function Player() {
+export default function Player({file}) {
   const [wavFile, setWavFile] = useState("first.mp3");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [volumeNumber, setVolumeNumber] = useState(0.5);
 
   const audioRef = useRef(null);
 
@@ -16,34 +16,38 @@ export default function Player() {
     setIsPlaying(!isPlaying);
   };
 
-  const handleTimeUpdate = () => {
-    setCurrentTime(audioRef.current.currentTime);
-  };
+  const handleVolumeChange = (e) => {
+    setVolumeNumber(e.target.value)
+    audioRef.current.volume = e.target.value;
+    
+  }
 
-  const handleSeek = (e) => {
-    const seekTime = e.target.value;
-    audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
-  };
 
   return (
-    <div>
-      <input
-        type="range"
-        value={currentTime}
-        max={audioRef.current ? audioRef.current.duration : 0}
-        onChange={handleSeek}
-      />
+    <div className="flex flex-col items-center">
+    <div 
+    onClick={togglePlay} 
+    className={`${isPlaying ? "bg-gray-300" : ""} bg-gray-100 w-24 h-24 p-4 rounded flex items-center justify-center`}
+    >
+      
       <audio
         ref={audioRef}
-        src={wavFile}
-        onTimeUpdate={handleTimeUpdate}
+        src={file}
+        loop
         onEnded={() => setIsPlaying(false)}
       >
         <source src={wavFile} type="audio/mpeg" />
       </audio>
-      <p>{currentTime}</p>
-      <button onClick={togglePlay}>{isPlaying ? "停止" : "再生"}</button>
+      
+    </div>
+    <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value={volumeNumber}
+        onChange={handleVolumeChange}
+      />
     </div>
   );
 }
